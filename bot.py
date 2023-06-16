@@ -16,6 +16,7 @@ def roll_dice(dice, difficulty):
     rolls = []
     cancellations = []
 
+    botches = 0
     # Roll the initial dice
     for _ in range(dice):
         roll = random.randint(1, 10)
@@ -24,6 +25,7 @@ def roll_dice(dice, difficulty):
     # Count the number of 1s and their impact on successes
     ones = rolls.count(1)
     while ones > 0:
+        botches += 1
         highest_remaining_success = max((roll for roll in rolls if roll >= difficulty), default=None)
         if highest_remaining_success is not None:
             rolls.remove(1)
@@ -42,15 +44,17 @@ def roll_dice(dice, difficulty):
             extra_rolls.append(extra_roll)
             if extra_roll == 10:
                 tens += 1
+            elif extra_roll == 1:
+                botches += 1
             tens -= 1
 
     # Return all rolls (including cancelled ones) and extra rolls
-    return sorted(rolls + [pair for sublist in cancellations for pair in sublist], reverse=True), sorted(extra_rolls, reverse=True)
+    return sorted(rolls + [pair for sublist in cancellations for pair in sublist], reverse=True), sorted(extra_rolls, reverse=True), botches
 
 @bot.command(name='roll', help='Rolls a White Wolf dice pool. Syntax: !roll [number of dice] [difficulty]')
 async def roll(ctx, dice: int, difficulty: int = -1):
-    all_rolls, extra_rolls = roll_dice(dice, difficulty)  # Roll the dice
-    successes = len([d for d in all_rolls if d >= difficulty and d != 1]) - all_rolls.count(1)  # Count successes
+    all_rolls, extra_rolls, botches = roll_dice(dice, difficulty)  # Roll the dice
+    successes = len([d for d in all_rolls if d >= difficulty]) + len([d for d in extra_rolls if d >= difficulty]) - botches # Count successes
 
     # if no dficulty is specified, just return the rolls
     if difficulty < 1:
