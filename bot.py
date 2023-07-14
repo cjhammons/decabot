@@ -6,7 +6,7 @@ import logging
 
 
 # setup discord client  
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s - %(message)s')
 logging.info('Starting decabot')
 intents = discord.Intents.default()
 intents.message_content = True
@@ -60,26 +60,22 @@ async def roll(ctx, dice: int, difficulty: int = -1, initiative: str = None):
     all_rolls, extra_rolls, botches = roll_dice(dice, difficulty, initiative)  # Roll the dice
     successes = len([d for d in all_rolls if d >= difficulty]) + len([d for d in extra_rolls if d >= difficulty]) - botches # Count successes
     
-    s = ''
+    s = 'MESSAGE: '
 
     if initiative is not None:
         s = f'{ctx.message.author.mention} rolled: {all_rolls}.\nYou have {successes} initiative.'
-        await ctx.send(s)
-    # if no dficulty is specified, just return the rolls
-    elif difficulty < 1:
-        s = f'{ctx.message.author.mention} rolled: {all_rolls}'
-        await ctx.send(s)
     # Handle botches (all dice showing 1)
     elif all(d == 1 for d in all_rolls):
-        await ctx.send(f'{ctx.message.author.mention} rolled: {all_rolls}.\nOh no, a botch!')
+        s = f'{ctx.message.author.mention} rolled: {all_rolls}.\nOh no, a botch!'
     else:
         if extra_rolls:
-            s = f'{ctx.message.author.mention} rolled: {all_rolls} with extra rolls: {extra_rolls}.\nYou have {successes} successes.'
-            await ctx.send(s)
+            s = f'{ctx.message.author.mention} rolled: {all_rolls} with extra rolls: {extra_rolls}.'
         else:
-            s = f'{ctx.message.author.mention} rolled: {all_rolls}.\nYou have {successes} successes.'
-            await ctx.send(s)
-    
+            s = f'{ctx.message.author.mention} rolled: {all_rolls}.'
+        if difficulty > 0:
+            s += f'\nYou have {successes} successes.'
+        
+    await ctx.send(s)
     logging.info(s)
 
 
