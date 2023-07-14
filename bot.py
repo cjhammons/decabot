@@ -65,15 +65,12 @@ async def roll(ctx, dice: int, difficulty: int = -1, initiative: str = None):
     if initiative is not None:
         s = f'{ctx.message.author.mention} rolled: {all_rolls}.\nYou have {successes} initiative.'
         await ctx.send(s)
-        logging.info(s)
-        return
-    
     # if no dficulty is specified, just return the rolls
-    if difficulty < 1:
+    elif difficulty < 1:
         s = f'{ctx.message.author.mention} rolled: {all_rolls}'
         await ctx.send(s)
     # Handle botches (all dice showing 1)
-    if all(d == 1 for d in all_rolls):
+    elif all(d == 1 for d in all_rolls):
         await ctx.send(f'{ctx.message.author.mention} rolled: {all_rolls}.\nOh no, a botch!')
     else:
         if extra_rolls:
