@@ -3,7 +3,8 @@ from discord.ext import commands
 import random
 import configparser
 import logging
-
+import requests
+import json 
 
 # setup discord client  
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s - %(message)s')
@@ -12,7 +13,10 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 config = configparser.ConfigParser()
-config.read('config')
+config.read('config.ini')
+
+nommer_api_key = config['nommer']['api_key']
+
 
 def roll_dice(dice, difficulty, initiative):
     logging.info(f'Rolling {dice} dice with {difficulty} difficulty.')
@@ -55,6 +59,36 @@ def roll_dice(dice, difficulty, initiative):
     # Return all rolls (including cancelled ones) and extra rolls
     return sorted(rolls + [pair for sublist in cancellations for pair in sublist], reverse=True), sorted(extra_rolls, reverse=True), botches
 
+def send_to_nommer(user_id, user_display_name, rolls, successes, botches, extra_rolls, message):
+    payload = {
+        "event": {
+            "user_id": user_id,
+            "user_display_name": user_display_name,
+            "rolls": rolls,
+            "successes": successes,
+            "botches": botches,
+            "extra_rolls": extra_rolls,
+            "message": message
+        }
+    }
+    json_payload = json.dumps(payload)
+    logging.info(f'Sending payload to nommer: {payload}')
+    try:
+        url = f'http://{config["nommer"]["url"]}/1/{config["nommer"]["project"]}/event'
+        logging.info(f'POST {url}')
+        response = requests.post(
+            url,
+            headers={
+                'X-API-Key': nommer_api_key,
+                'Content-Type': 'application/json'
+                },
+            data=json_payload
+        )
+        if response.status_code not in [200, 201]:
+            logging.error(f'Error sending payload to nommer: {response.text}')
+    except Exception as e:
+        logging.error(f'Error sending payload to nommer: {e}')
+
 @bot.command(name='roll', help='Rolls a White Wolf dice pool. Syntax: !roll [number of dice](required, int) [difficulty](required, int) [initiative](optional, boolean)')
 async def roll(ctx, dice: int, difficulty: int = -1, initiative: str = None):
     all_rolls, extra_rolls, botches = roll_dice(dice, difficulty, initiative)  # Roll the dice
@@ -77,6 +111,8 @@ async def roll(ctx, dice: int, difficulty: int = -1, initiative: str = None):
         
     await ctx.send(s)
     logging.info(s)
+
+    send_to_nommer(ctx.message.author.id, ctx.message.author.display_name, all_rolls, successes, botches, extra_rolls, s)
 
 
 # Run the bot with your token
