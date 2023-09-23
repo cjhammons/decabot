@@ -13,8 +13,10 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('config-decabot.ini')
 
+logging.info(f'Loaded config: {config}')
+logging.info(f'Config Sections: {config.sections()}')
 nommer_api_key = config['nommer']['api_key']
 
 
