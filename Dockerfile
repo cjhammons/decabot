@@ -12,7 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Make port 80 available to the world outside this container
-EXPOSE 80
+EXPOSE 81
 
 # Run bot.py when the container launches
 CMD ["python", "bot.py"]
