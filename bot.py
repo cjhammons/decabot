@@ -61,11 +61,12 @@ def roll_dice(dice, difficulty, initiative):
     # Return all rolls (including cancelled ones) and extra rolls
     return sorted(rolls + [pair for sublist in cancellations for pair in sublist], reverse=True), sorted(extra_rolls, reverse=True), botches
 
-def send_to_nommer(user_id, user_display_name, rolls, successes, botches, extra_rolls, message):
+def send_to_nommer(ctx, rolls, successes, botches, extra_rolls, message):
     payload = {
         "event": {
-            "user_id": user_id,
-            "user_display_name": user_display_name,
+            "author_id": ctx.author.id,
+            "author_name": ctx.author.display_name,
+            "author_nickname": ctx.author.nick,
             "rolls": rolls,
             "successes": successes,
             "botches": botches,
@@ -114,8 +115,8 @@ async def roll(ctx, dice: int, difficulty: int = -1, initiative: str = None):
     await ctx.send(s)
     logging.info(s)
 
-    send_to_nommer(ctx.message.author.id, ctx.message.author.display_name, all_rolls, successes, botches, extra_rolls, s)
-
+    # send_to_nommer(ctx.message.author.id, ctx.message.author.display_name, all_rolls, successes, botches, extra_rolls, s)
+    send_to_nommer(ctx, all_rolls, successes, botches, extra_rolls, ctx.message.content)
 
 # Run the bot with your token
 bot.run(config['discord']['token'])
