@@ -1,3 +1,5 @@
 env/
 .env
 config
+config.ini
+config-decabot.ini
