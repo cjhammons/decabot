@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: decabot-deployment
+  labels:
+    app: decabot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: decabot
+  template:
+    metadata:
+      labels:
+        app: decabot
+    spec:
+      containers:
+      - name: decabot
+        image: hub.docker.com//cjhammons/decabot:latest
+        ports:
+        - containerPort: 80 # Adjust the port as needed
