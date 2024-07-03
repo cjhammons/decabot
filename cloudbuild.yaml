@@ -1,0 +1,16 @@
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/decabot', '.']
+  
+  # Step 2: Push the Docker image to Google Container Registry (GCR)
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/decabot']
+
+# Optionally, deploy the Docker image to Google Cloud Run (or another service)
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: ['run', 'deploy', 'decabot', '--image', 'gcr.io/$PROJECT_ID/decabot', '--platform', 'managed', '--region', 'us-central1']
+
+images:
+  - 'gcr.io/$PROJECT_ID/decabot'
+
