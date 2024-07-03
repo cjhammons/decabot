@@ -3,11 +3,8 @@ Decabot
 
 Bot for the whitewolf system. Automatically handles rerolls and failures. 
 
-Currently not running in the cloud.
-
-If you want to clone and run, you'll need a ``config-decabot.ini`` file with this structure:
+If you want to clone and run, you'll need a ``.env`` file with this structure:
 
 ```
-[discord]
-token = <your bot token here>
+TOKEN = <your bot token here>
 ```
