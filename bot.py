@@ -5,6 +5,8 @@ import configparser
 import logging
 import requests
 import json 
+from dotenv import load_dotenv
+import os
 
 # setup discord client  
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s - %(message)s')
@@ -12,12 +14,10 @@ logging.info('Starting decabot')
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
-config = configparser.ConfigParser()
-config.read('config-decabot.ini')
 
-logging.info(f'Loaded config: {config}')
-logging.info(f'Config Sections: {config.sections()}')
-nommer_api_key = config['nommer']['api_key']
+load_dotenv()
+token = os.getenv('TOKEN')
+
 
 
 def roll_dice(dice, difficulty, initiative):
@@ -119,4 +119,4 @@ async def roll(ctx, dice: int, difficulty: int = -1, initiative: str = None):
     send_to_nommer(ctx, all_rolls, successes, botches, extra_rolls, ctx.message.content)
 
 # Run the bot with your token
-bot.run(config['discord']['token'])
+bot.run(token)
