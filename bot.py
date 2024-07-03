@@ -61,36 +61,6 @@ def roll_dice(dice, difficulty, initiative):
     # Return all rolls (including cancelled ones) and extra rolls
     return sorted(rolls + [pair for sublist in cancellations for pair in sublist], reverse=True), sorted(extra_rolls, reverse=True), botches
 
-def send_to_nommer(ctx, rolls, successes, botches, extra_rolls, message):
-    payload = {
-        "event": {
-            "author_id": ctx.author.id,
-            "author_name": ctx.author.display_name,
-            "author_nickname": ctx.author.nick,
-            "rolls": rolls,
-            "successes": successes,
-            "botches": botches,
-            "extra_rolls": extra_rolls,
-            "message": message
-        }
-    }
-    json_payload = json.dumps(payload)
-    logging.info(f'Sending payload to nommer: {payload}')
-    try:
-        url = f'http://{config["nommer"]["url"]}/1/{config["nommer"]["project"]}/event'
-        logging.info(f'POST {url}')
-        response = requests.post(
-            url,
-            headers={
-                'X-API-Key': nommer_api_key,
-                'Content-Type': 'application/json'
-                },
-            data=json_payload
-        )
-        if response.status_code not in [200, 201]:
-            logging.error(f'Error sending payload to nommer: {response.text}')
-    except Exception as e:
-        logging.error(f'Error sending payload to nommer: {e}')
 
 @bot.command(name='roll', help='Rolls a White Wolf dice pool. Syntax: !roll [number of dice](required, int) [difficulty](required, int) [initiative](optional, boolean)')
 async def roll(ctx, dice: int, difficulty: int = -1, initiative: str = None):
@@ -114,9 +84,6 @@ async def roll(ctx, dice: int, difficulty: int = -1, initiative: str = None):
         
     await ctx.send(s)
     logging.info(s)
-
-    # send_to_nommer(ctx.message.author.id, ctx.message.author.display_name, all_rolls, successes, botches, extra_rolls, s)
-    send_to_nommer(ctx, all_rolls, successes, botches, extra_rolls, ctx.message.content)
 
 # Run the bot with your token
 bot.run(token)
