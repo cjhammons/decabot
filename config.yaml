@@ -1,0 +1,11 @@
+name: "Decabot"
+description: "Decabot add on"
+version: "1.0.0"
+slug: "decabot"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
